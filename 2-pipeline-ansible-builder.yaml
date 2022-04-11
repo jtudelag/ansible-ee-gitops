@@ -1,0 +1,109 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: ansible-builder
+spec:
+  workspaces:
+  - name: ee-repo
+  params:
+  # Fetch Task
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+    default: https://github.com/jtudelag/ansible-execution-environments.git
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment (Commit id)
+    default: main
+  # Ansible Builder
+  # - description: ansible-builder output verbosity
+  #   name: VERBOSITY
+  #   type: string
+  #   default: "2"
+  - name: ANSIBLE_BUILDER_IMAGE
+    description: The location of the ansible-builder image.
+    type: string
+    default: registry.redhat.io/ansible-automation-platform-21/ansible-builder-rhel8:1.0.1-47
+  # - name: OUTPUT_FILE
+  #   description: Output of the ansible-builder, either Dockerfile or Containerfile.
+  #   type: string
+  #   default: Containerfile
+  - description: Name of the container image to be built
+    name: NAME
+    type: string
+  - description: Tag of the container image to be built
+    name: TAG
+    type: string
+    default: "latest"
+  - description: Path to the directory to use as context for buildah.
+    name: CONTEXT
+    type: string
+    default: "context/"
+  - description: The path to the Dockerfile to execute.
+    name: DOCKERFILE
+    type: string
+    default: "Containerfile"
+  - description: buildah build Args
+    name: BUILD_ARGS
+    type: string
+    default: ""
+  - description: buildah push Args
+    name: PUSH_ARGS
+    type: string
+    default: ""
+  - description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
+    name: TLSVERIFY
+    type: string
+    default: "false"
+  tasks:
+
+    - name: fetch-repository
+      taskRef:
+        name: git-clone-1-6-0
+        kind: ClusterTask
+      workspaces:
+      - name: output
+        workspace: ee-repo
+      params:
+      - name: url
+        value: $(params.git-url)
+      - name: deleteExisting
+        value: "true"
+      - name: revision
+        value: $(params.git-revision)
+
+    - name: ansible-builder-create
+      taskRef:
+        name: ansible-builder-create
+        kind: Task
+      workspaces:
+      - name: source
+        workspace: ee-repo
+      runAfter:
+      - fetch-repository
+      params:
+      - name: BUILDER_IMAGE
+        value: $(params.ANSIBLE_BUILDER_IMAGE)
+
+    - name: build-image
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      workspaces:
+      - name: source
+        workspace: ee-repo
+      runAfter:
+      - ansible-builder-create
+      params:
+      - name: TLSVERIFY
+        value: "false"
+      - name: IMAGE
+        value: $(params.NAME):$(params.TAG)
+      - name: CONTEXT
+        value: "$(params.CONTEXT)"
+      - name: DOCKERFILE
+        value: "$(params.DOCKERFILE)"
+      - name: BUILD_EXTRA_ARGS
+        value: "$(params.BUILD_ARGS)"
+      - name: PUSH_EXTRA_ARGS
+        value: "$(params.PUSH_ARGS)"

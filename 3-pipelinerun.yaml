@@ -1,0 +1,37 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-ee
+  labels:
+    tekton.dev/pipeline: ansible-builder
+spec:
+  params:
+    - name: git-url
+      value: 'https://github.com/jtudelag/ansible-execution-environments.git'
+    - name: git-revision
+      value: main
+    - name: ANSIBLE_BUILDER_IMAGE
+      value: >-
+        registry.redhat.io/ansible-automation-platform-21/ansible-builder-rhel8:1.0.1-47
+    - name: NAME
+      value: quay.io/jtudelag/ansible-ee-test
+    - name: TAG
+      value: test
+    - name: CONTEXT
+      value: context/
+    - name: DOCKERFILE
+      value: Containerfile
+    - name: BUILD_ARGS
+      value: ''
+    - name: PUSH_ARGS
+      value: ''
+    - name: TLSVERIFY
+      value: 'false'
+  pipelineRef:
+    name: ansible-builder
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: ee-repo
+      persistentVolumeClaim:
+        claimName: ansible-builder-pvc
