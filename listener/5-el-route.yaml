@@ -8,7 +8,7 @@ metadata:
   name: ansible-ee-el
 spec:
   port:
-    targetPort: listener
+    targetPort: http-listener
   to:
     kind: Service
     name: el-ansible-ee-el
