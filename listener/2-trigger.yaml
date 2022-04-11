@@ -7,7 +7,7 @@ spec:
   interceptors:
     - github:
         secretRef:
-          secretName: github-trigger-secret
+          secretName: ansible-ee-trigger-secret
           secretKey: secretToken
         eventTypes:
         - push
