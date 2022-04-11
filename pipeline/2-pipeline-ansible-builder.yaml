@@ -85,7 +85,7 @@ spec:
       - name: BUILDER_IMAGE
         value: $(params.ANSIBLE_BUILDER_IMAGE)
 
-    - name: build-image
+    - name: build-image-tag
       taskRef:
         name: buildah
         kind: ClusterTask
@@ -99,6 +99,29 @@ spec:
         value: "false"
       - name: IMAGE
         value: $(params.NAME):$(params.TAG)
+      - name: CONTEXT
+        value: "$(params.CONTEXT)"
+      - name: DOCKERFILE
+        value: "$(params.DOCKERFILE)"
+      - name: BUILD_EXTRA_ARGS
+        value: "$(params.BUILD_ARGS)"
+      - name: PUSH_EXTRA_ARGS
+        value: "$(params.PUSH_ARGS)"
+
+    - name: build-image-latest
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      workspaces:
+      - name: source
+        workspace: ee-repo
+      runAfter:
+      - ansible-builder-create
+      params:
+      - name: TLSVERIFY
+        value: "false"
+      - name: IMAGE
+        value: $(params.NAME):latest
       - name: CONTEXT
         value: "$(params.CONTEXT)"
       - name: DOCKERFILE

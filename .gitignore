@@ -1,1 +1,2 @@
-*secret*.yaml
+pipeline/*secret*.yaml
+listener/*secret*.yaml
