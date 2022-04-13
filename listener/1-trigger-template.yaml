@@ -46,11 +46,6 @@ spec:
           value: $(tt.params.short-id)
         pipelineRef:
           name: ansible-builder
-        podTemplate:
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            fsGroup: 1001
         serviceAccountName: pipeline
         timeout: 1h0m0s
         workspaces:
