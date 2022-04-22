@@ -3,7 +3,7 @@
 First create secrets manually for your private registries (pull and push images) and for the Tekton Trigger webhook.
 
 ## Private Registry Secret
-For example, for your private registries. In this case I am pushing to `quay.io` and also pulling from `registry.redhat.io`.
+For example, for your private registries. In this case we am pushing to `quay.io` and also pulling from `registry.redhat.io`.
 ```yaml
 apiVersion: v1
 data:
@@ -13,21 +13,13 @@ metadata:
   annotations:
     tekton.dev/docker-0: quay.io
     tekton.dev/docker-1: registry.redhat.io
-  name: quay
+  name: pull-and-push
 type: kubernetes.io/dockerconfigjson
 ```
 
-Then you need to patch `pipeline` SA with it.
+Then you need to link the secret `pull-and-push` to the `pipeline` SA so it can be used for pulling and pushing images.
 ```bash
-oc edit sa pipeline
-
-kind: ServiceAccount
-metadata:
-  name: pipeline
-secrets:
-- name: pipeline-token-n27h8
-- name: pipeline-dockercfg-smhwn
-- name: quay
+oc secret link pipeline pull-and-push --for=pull,mount
 ```
 
 ## Webhook Secret Token
@@ -41,7 +33,3 @@ type: Generic
 stringData:
   secretToken: "123"
 ```
-
-
-
-

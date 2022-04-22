@@ -1,2 +1,3 @@
 pipeline/*secret*.yaml
 listener/*secret*.yaml
+.history/

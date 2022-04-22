@@ -15,19 +15,11 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment (Commit id)
     default: main
-  # Ansible Builder
-  # - description: ansible-builder output verbosity
-  #   name: VERBOSITY
-  #   type: string
-  #   default: "2"
+  # ansible-builder task
   - name: ANSIBLE_BUILDER_IMAGE
     description: The location of the ansible-builder image.
     type: string
     default: registry.redhat.io/ansible-automation-platform-21/ansible-builder-rhel8:1.0.1-47
-  # - name: OUTPUT_FILE
-  #   description: Output of the ansible-builder, either Dockerfile or Containerfile.
-  #   type: string
-  #   default: Containerfile
   - description: Name of the container image to be built
     name: NAME
     type: string
@@ -35,22 +27,23 @@ spec:
     name: TAG
     type: string
     default: "latest"
-  # - description: Path to the directory to use as context for buildah.
-  #   name: CONTEXT
-  #   type: string
-  #   default: "context/"
-  # - description: The path to the Dockerfile to execute.
-  #   name: DOCKERFILE
-  #   type: string
-  #   default: "Containerfile"
-  # - description: buildah build Args
-  #   name: BUILD_ARGS
-  #   type: string
-  #   default: ""
-  # - description: buildah push Args
-  #   name: PUSH_ARGS
-  #   type: string
-  #   default: ""
+  # Buildah task
+  - description: Path to the directory to use as context for buildah.
+    name: CONTEXT
+    type: string
+    default: "context/"
+  - description: The path to the Dockerfile to execute.
+    name: DOCKERFILE
+    type: string
+    default: "Containerfile"
+  - description: buildah build Args
+    name: BUILD_ARGS
+    type: string
+    default: ""
+  - description: buildah push Args
+    name: PUSH_ARGS
+    type: string
+    default: ""
   - description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
     name: TLSVERIFY
     type: string
@@ -72,9 +65,9 @@ spec:
       - name: revision
         value: $(params.git-revision)
 
-    - name: ansible-builder
+    - name: ansible-builder-create
       taskRef:
-        name: ansible-builder-create
+        name: ansible-builder
         kind: Task
       workspaces:
       - name: source

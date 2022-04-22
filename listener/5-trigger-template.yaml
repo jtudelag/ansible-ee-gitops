@@ -28,14 +28,6 @@ spec:
           value: quay.io/jtudelag/ansible-ee-test
         - name: TAG
           value: $(tt.params.short-id)
-        # - name: CONTEXT
-        #   value: context/
-        # - name: DOCKERFILE
-        #   value: Containerfile
-        # - name: BUILD_ARGS
-        #   value: ''
-        # - name: PUSH_ARGS
-        #   value: ''
         - name: TLSVERIFY
           value: 'false'
         - name: git-url
